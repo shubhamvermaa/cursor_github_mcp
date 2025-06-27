@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Button</title>
     <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --container-bg: white;
+            --text-color: #333;
+            --btn-bg: #007bff;
+            --btn-hover: #0056b3;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --container-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --btn-bg: #0d6efd;
+            --btn-hover: #0b5ed7;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -12,19 +30,46 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s ease;
         }
 
         .container {
             text-align: center;
             padding: 2rem;
-            background: white;
+            background: var(--container-bg);
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background-color: var(--text-color);
+            color: var(--container-bg);
         }
 
         .btn {
-            background-color: #007bff;
+            background-color: var(--btn-bg);
             color: white;
             border: none;
             padding: 12px 24px;
@@ -35,7 +80,7 @@
         }
 
         .btn:hover {
-            background-color: #0056b3;
+            background-color: var(--btn-hover);
         }
 
         .btn:active {
@@ -43,21 +88,61 @@
         }
 
         h1 {
-            color: #333;
+            color: var(--text-color);
             margin-bottom: 1rem;
+            transition: color 0.3s ease;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+            <span id="theme-icon">🌙</span>
+        </button>
         <h1>Welcome!</h1>
         <button class="btn" onclick="handleClick()">Click Me</button>
     </div>
 
     <script>
+        // Initialize theme from localStorage or default to light
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
         function handleClick() {
             alert('Button clicked!');
         }
+
+        // Initialize theme on page load
+        initTheme();
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                const theme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+                updateThemeIcon(theme);
+            }
+        });
     </script>
 </body>
 </html>
